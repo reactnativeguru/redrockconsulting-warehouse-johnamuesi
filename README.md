@@ -17,16 +17,17 @@
 ## Contents
 
 1. [What this demonstrates](#what-this-demonstrates)
-2. [Architecture](#architecture)
-3. [The components in detail](#the-components-in-detail)
-4. [Key business flows](#key-business-flows)
-5. [Reliability patterns](#reliability-patterns)
-6. [Getting started](#getting-started)
-7. [Testing](#testing)
-8. [Delivery: Docker, Kubernetes, Jenkins, Azure](#delivery-docker-kubernetes-jenkins-azure)
-9. [Deliberate shortcuts and production next steps](#deliberate-shortcuts-and-production-next-steps)
-10. [Repository map](#repository-map)
-11. [Further reading](#further-reading)
+2. [Screenshots](#screenshots)
+3. [Architecture](#architecture)
+4. [The components in detail](#the-components-in-detail)
+5. [Key business flows](#key-business-flows)
+6. [Reliability patterns](#reliability-patterns)
+7. [Getting started](#getting-started)
+8. [Testing](#testing)
+9. [Delivery: Docker, Kubernetes, Jenkins, Azure](#delivery-docker-kubernetes-jenkins-azure)
+10. [Deliberate shortcuts and production next steps](#deliberate-shortcuts-and-production-next-steps)
+11. [Repository map](#repository-map)
+12. [Further reading](#further-reading)
 
 ---
 
@@ -43,11 +44,54 @@
 | **Micro-frontends** | Webpack 5 Module Federation: a shell plus two independently deployable remotes |
 | **React Native** | `mobile/`: Expo SDK 58, React Native 0.88 |
 | **Offline-first sync** | On-device SQLite outbox with an idempotent push/pull sync protocol |
-| **Testing** | xUnit + MassTransit test harness, Jest + React Testing Library, Jest + RN Testing Library (63 tests) |
+| **Testing** | xUnit + MassTransit test harness, Jest + React Testing Library, Jest + RN Testing Library (42 tests) |
 | **Docker, Kubernetes, Jenkins, GitFlow** | `docker-compose.yml`, `infra/k8s` (kustomize overlays), GitFlow-aware `Jenkinsfile` |
 | **Azure** | One-script deployment: Bicep, Container Apps, Service Bus, Cosmos DB, Azure SQL |
 | **Pragmatism and judgement** | Documented shortcuts with the production answer for each (see below) |
 | **Mentoring and knowledge sharing** | `docs/`: onboarding-style guides, including a C# primer for TypeScript developers |
+
+---
+
+## Screenshots
+
+All captured from the platform running locally with `docker compose up`.
+
+### Handheld app (React Native)
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/mobile-lookup.png" width="210" alt="Lookup screen showing a scanned jacket with price, colours, sizes and store stock"></td>
+    <td align="center"><img src="docs/screenshots/mobile-stock-count-offline.png" width="210" alt="Stock count screen while offline, with one count saved on the device waiting to sync"></td>
+    <td align="center"><img src="docs/screenshots/mobile-click-and-collect.png" width="210" alt="Click and collect pick list with an order ready to pick"></td>
+    <td align="center"><img src="docs/screenshots/mobile-ios.png" width="210" alt="The same app running on an iPhone simulator"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Lookup</b><br>Scan a barcode: product, price and this store's live stock</td>
+    <td align="center"><b>Stock count, offline</b><br>Saved on the device and synced automatically when signal returns</td>
+    <td align="center"><b>Click &amp; collect</b><br>Orders ready to pick; marking one picked works offline too</td>
+    <td align="center"><b>iOS</b><br>The same codebase on iPhone (above: Android)</td>
+  </tr>
+</table>
+
+### Admin portal (React micro-frontends)
+
+**Catalogue remote:** search products and change prices. A price change flows to the tills through the ePOS ETL.
+
+![Admin portal catalogue tab showing a product search for jackets with prices](docs/screenshots/admin-portal-catalogue.png)
+
+**Stock remote:** live stock for the selected store, with low-stock lines highlighted and write-off adjustments.
+
+![Admin portal stock tab showing on-hand, reserved and available stock per SKU, with two low-stock lines highlighted](docs/screenshots/admin-portal-stock.png)
+
+### Messaging (RabbitMQ management UI)
+
+**Queues:** one queue per consumer endpoint (`order-submitted`, `stock-reserved`, `sales-recorded` and so on).
+
+![RabbitMQ queues page listing the six service queues, all running and empty](docs/screenshots/rabbitmq-queues.png)
+
+**Exchanges:** MassTransit creates one fanout exchange per integration event type in `Basecamp.Contracts`.
+
+![RabbitMQ exchanges page listing the Basecamp.Contracts event exchanges](docs/screenshots/rabbitmq-exchanges.png)
 
 ---
 
