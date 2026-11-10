@@ -81,7 +81,7 @@ All captured from the platform running locally with `docker compose up`.
 
 **Stock remote:** live stock for the selected store, with low-stock lines highlighted and write-off adjustments.
 
-![Admin portal stock tab showing on-hand, reserved and available stock per SKU, with two low-stock lines highlighted](docs/screenshots/admin-portal-stock.png)
+![Admin portal stock tab showing on-hand, reserved and available stock per SKU, with the one low-stock line highlighted](docs/screenshots/admin-portal-stock.png)
 
 ### Messaging (RabbitMQ management UI)
 
