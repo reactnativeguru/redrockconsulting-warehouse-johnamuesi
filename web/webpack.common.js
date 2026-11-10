@@ -34,7 +34,8 @@ module.exports = function createConfig({ dir, name, port, title, exposes = {}, r
         {
           test: /\.[jt]sx?$/,
           exclude: /node_modules/,
-          use: { loader: 'babel-loader', options: { rootMode: 'upward' } },
+          // envName keeps Babel's JSX transform in step with the React build webpack bundles.
+          use: { loader: 'babel-loader', options: { rootMode: 'upward', envName: argv.mode ?? 'development' } },
         },
       ],
     },
