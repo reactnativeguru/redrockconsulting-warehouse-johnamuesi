@@ -1,0 +1,25 @@
+# Non-secret settings shared by all .NET services. ASP.NET Core maps env vars with
+# double underscores to config sections: Messaging__RabbitMq__Host -> Messaging:RabbitMq:Host
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: basecamp-config
+data:
+  ASPNETCORE_ENVIRONMENT: Production
+  Messaging__Transport: RabbitMq
+  Messaging__RabbitMq__Host: rabbitmq
+  Services__CatalogUrl: http://catalog/
+---
+# Secrets: in real clusters these come from Azure Key Vault (CSI driver / External
+# Secrets Operator), never committed. Values here are placeholders for local clusters.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: basecamp-secrets
+type: Opaque
+stringData:
+  ConnectionStrings__CatalogDb: mongodb://mongo:27017
+  ConnectionStrings__InventoryDb: Server=sqlserver,1433;Database=Inventory;User Id=sa;Password=CHANGE_ME;TrustServerCertificate=True
+  ConnectionStrings__OrdersDb: Server=sqlserver,1433;Database=Orders;User Id=sa;Password=CHANGE_ME;TrustServerCertificate=True
+  Messaging__RabbitMq__Username: guest
+  Messaging__RabbitMq__Password: guest

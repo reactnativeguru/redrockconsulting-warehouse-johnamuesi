@@ -1,0 +1,110 @@
+# ---------------------------------------------------------------------------
+# Whole platform locally:  docker compose up --build
+#
+#   Gateway (all APIs)    http://localhost:5050
+#   Admin portal (MFEs)   http://localhost:8080
+#   RabbitMQ UI           http://localhost:15672   (guest / guest)
+#   Mongo                 mongodb://localhost:27017
+#   SQL Server            localhost,1433           (sa / Basecamp!Passw0rd)
+#
+# Drop an ePOS file into ./data/epos/inbound to watch the ETL pick it up.
+# ---------------------------------------------------------------------------
+x-dotnet-env: &dotnet-env
+  ASPNETCORE_ENVIRONMENT: Development
+  Messaging__Transport: RabbitMq
+  Messaging__RabbitMq__Host: rabbitmq
+
+services:
+  # ---------------- infrastructure ----------------
+  rabbitmq:
+    # MassTransit's image = RabbitMQ + management UI + delayed-message plugin.
+    image: masstransit/rabbitmq:latest
+    ports: ["5672:5672", "15672:15672"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      retries: 10
+
+  mongo:
+    image: mongo:8
+    ports: ["27017:27017"]
+    volumes: [mongo-data:/data/db]
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64   # Apple Silicon: enable Rosetta in Docker Desktop
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Basecamp!Passw0rd"
+    ports: ["1433:1433"]
+    volumes: [sql-data:/var/opt/mssql]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Basecamp!Passw0rd' -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 20
+      start_period: 20s
+
+  # ---------------- services ----------------
+  catalog:
+    build: { context: ./backend, args: { PROJECT: src/Services/Catalog/Catalog.Api/Catalog.Api.csproj, ENTRY: Catalog.Api.dll } }
+    environment:
+      <<: *dotnet-env
+      ConnectionStrings__CatalogDb: mongodb://mongo:27017
+    depends_on:
+      mongo: { condition: service_started }
+      rabbitmq: { condition: service_healthy }
+
+  inventory:
+    build: { context: ./backend, args: { PROJECT: src/Services/Inventory/Inventory.Api/Inventory.Api.csproj, ENTRY: Inventory.Api.dll } }
+    environment:
+      <<: *dotnet-env
+      ConnectionStrings__InventoryDb: "Server=sqlserver,1433;Database=Inventory;User Id=sa;Password=Basecamp!Passw0rd;TrustServerCertificate=True"
+    depends_on:
+      sqlserver: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  orders:
+    build: { context: ./backend, args: { PROJECT: src/Services/Orders/Orders.Api/Orders.Api.csproj, ENTRY: Orders.Api.dll } }
+    environment:
+      <<: *dotnet-env
+      ConnectionStrings__OrdersDb: "Server=sqlserver,1433;Database=Orders;User Id=sa;Password=Basecamp!Passw0rd;TrustServerCertificate=True"
+      Services__CatalogUrl: http://catalog:8080/
+    depends_on:
+      sqlserver: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  epos-etl:
+    build: { context: ./backend, args: { PROJECT: src/Services/Etl/Epos.Etl/Epos.Etl.csproj, ENTRY: Epos.Etl.dll } }
+    environment:
+      <<: *dotnet-env
+      DOTNET_ENVIRONMENT: Development
+      Etl__InboundFolder: /data/inbound
+      Etl__ProcessedFolder: /data/processed
+      Etl__ErrorFolder: /data/error
+      Etl__OutboundFolder: /data/outbound
+    user: root   # so it can write to the bind-mounted folder on any host OS
+    volumes: ["./data/epos:/data"]
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+
+  gateway:
+    build: { context: ./backend, args: { PROJECT: src/Gateway/Gateway/Gateway.csproj, ENTRY: Gateway.dll } }
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ReverseProxy__Clusters__catalog__Destinations__d1__Address: http://catalog:8080/
+      ReverseProxy__Clusters__inventory__Destinations__d1__Address: http://inventory:8080/
+      ReverseProxy__Clusters__orders__Destinations__d1__Address: http://orders:8080/
+      Cors__Origins__0: http://localhost:8080
+      Cors__Origins__1: http://localhost:3000
+      Cors__Origins__2: http://localhost:8081
+    ports: ["5050:8080"]
+    depends_on: [catalog, inventory, orders]
+
+  admin-portal:
+    build: { context: ./web, args: { API_BASE_URL: "http://localhost:5050" } }
+    ports: ["8080:80"]
+    depends_on: [gateway]
+
+volumes:
+  mongo-data:
+  sql-data:

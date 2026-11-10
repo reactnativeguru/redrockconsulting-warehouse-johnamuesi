@@ -1,0 +1,35 @@
+### Try these from VS Code (REST Client extension), Rider or Visual Studio.
+@host = http://localhost:5102
+
+### Stores
+GET {{host}}/api/inventory/stores
+
+### Stock for a store
+GET {{host}}/api/inventory/stores/STORE-001/stock
+
+### Low stock only
+GET {{host}}/api/inventory/stores/STORE-001/stock?lowOnly=true
+
+### Manual adjustment (e.g. damaged goods)
+POST {{host}}/api/inventory/stores/STORE-001/stock/BC-JKT-001/adjustments
+Content-Type: application/json
+
+{ "delta": -1, "reason": "Damaged - torn seam" }
+
+### Handheld sync: push offline mutations (send twice - second time is idempotent)
+POST {{host}}/api/inventory/sync/push
+Content-Type: application/json
+
+{
+  "storeId": "STORE-001",
+  "deviceId": "TC52-0042",
+  "mutations": [
+    { "mutationId": "6a1f3c1e-6a5b-4a4e-9a51-0a4b2b4b1a01", "type": "StockCount", "sku": "BC-BOOT-001", "quantity": 12, "occurredAt": "2026-11-09T10:00:00Z" }
+  ]
+}
+
+### Handheld sync: pull everything (since=0), then pass the returned checkpoint
+GET {{host}}/api/inventory/sync/pull?storeId=STORE-001&since=0
+
+### Audit trail
+GET {{host}}/api/inventory/stores/STORE-001/movements?take=20

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: gateway }
+  template:
+    metadata:
+      labels: { app: gateway }
+    spec:
+      containers:
+        - name: gateway
+          image: basecamp/gateway:latest
+          ports: [{ containerPort: 8080 }]
+          envFrom:
+            - configMapRef: { name: basecamp-config }
+          env:
+            # In-cluster DNS: <service>.<namespace>.svc.cluster.local, or just <service>.
+            - { name: ReverseProxy__Clusters__catalog__Destinations__d1__Address, value: "http://catalog/" }
+            - { name: ReverseProxy__Clusters__inventory__Destinations__d1__Address, value: "http://inventory/" }
+            - { name: ReverseProxy__Clusters__orders__Destinations__d1__Address, value: "http://orders/" }
+            - { name: Cors__Origins__0, value: "https://admin.basecamp.local" }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits:   { memory: 384Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 30
+          securityContext: { runAsNonRoot: true, allowPrivilegeEscalation: false }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  selector: { app: gateway }
+  ports: [{ port: 80, targetPort: 8080 }]

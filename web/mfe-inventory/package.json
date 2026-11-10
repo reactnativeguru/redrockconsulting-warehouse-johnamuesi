@@ -1,0 +1,21 @@
+{
+  "name": "mfe-inventory",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Inventory micro-frontend: store stock levels, low-stock report, adjustments. Owned by the Retail team.",
+  "scripts": {
+    "start": "webpack serve",
+    "build": "webpack --mode production",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@basecamp/mfe-contracts": "1.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transform": { "\\.[jt]sx?$": ["babel-jest", { "rootMode": "upward" }] },
+    "setupFilesAfterEnv": ["@testing-library/jest-dom"]
+  }
+}

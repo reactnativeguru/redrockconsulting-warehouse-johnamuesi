@@ -1,0 +1,15 @@
+# Production: base only - RabbitMQ/Mongo/SQL are managed services outside the cluster.
+# The basecamp-secrets Secret is supplied by External Secrets / Key Vault, so we
+# remove the placeholder one from base.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+patches:
+  - target: { kind: Secret, name: basecamp-secrets }
+    patch: |-
+      $patch: delete
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: basecamp-secrets

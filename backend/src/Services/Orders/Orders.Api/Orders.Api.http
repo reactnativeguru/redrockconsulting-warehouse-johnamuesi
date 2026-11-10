@@ -1,0 +1,28 @@
+@host = http://localhost:5103
+
+### Place a click & collect order -> 202 Accepted (reservation happens async via RabbitMQ)
+# @name place
+POST {{host}}/api/orders
+Content-Type: application/json
+
+{
+  "storeId": "STORE-001",
+  "customerName": "Alex Walker",
+  "customerEmail": "alex@example.com",
+  "lines": [
+    { "sku": "BC-JKT-001", "quantity": 1 },
+    { "sku": "BC-SOCK-001", "quantity": 2 }
+  ]
+}
+
+### Poll the order: Submitted -> ReadyToPick (or Rejected) within ~1s
+GET {{host}}/api/orders/{{place.response.body.id}}
+
+### Store pick list
+GET {{host}}/api/orders?storeId=STORE-001&status=ReadyToPick
+
+### Mark picked (handheld) - idempotent, call twice
+POST {{host}}/api/orders/{{place.response.body.id}}/picked
+
+### Customer collected
+POST {{host}}/api/orders/{{place.response.body.id}}/collected

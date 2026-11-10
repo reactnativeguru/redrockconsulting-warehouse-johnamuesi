@@ -1,0 +1,18 @@
+# Dev overlay: 1 replica each, images from the registry with the CI build tag.
+# CI runs:  kustomize edit set image basecamp/inventory=<acr>/inventory:<tag> ...
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+  - ../../infra-local
+patches:
+  - target: { kind: Deployment, name: "(catalog|inventory|orders|gateway|admin-portal)" }
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+  - target: { kind: HorizontalPodAutoscaler, name: inventory }
+    patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 1

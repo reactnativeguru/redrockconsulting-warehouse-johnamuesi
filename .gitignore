@@ -1,0 +1,26 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+backend/data/
+TestResults/
+
+# Node
+node_modules/
+dist/
+coverage/
+.tsbuild/
+*.tsbuildinfo
+
+# Expo
+mobile/.expo/
+mobile/dist/
+mobile/android/
+mobile/ios/
+
+# Local data / secrets
+data/
+.env
+*.local
+infra/azure/*.parameters.local.json

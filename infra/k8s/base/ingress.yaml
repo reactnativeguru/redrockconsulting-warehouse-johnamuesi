@@ -1,0 +1,21 @@
+# Only two things are exposed outside the cluster: the API gateway and the portal.
+# Catalog/Inventory/Orders are ClusterIP only - reachable via the gateway.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: basecamp
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api.basecamp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: gateway, port: { number: 80 } } }
+    - host: admin.basecamp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: admin-portal, port: { number: 80 } } }

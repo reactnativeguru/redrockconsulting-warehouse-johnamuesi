@@ -1,0 +1,22 @@
+@host = http://localhost:5101
+
+### Search
+GET {{host}}/api/products?search=jacket&page=1&pageSize=10
+
+### Categories
+GET {{host}}/api/products/categories
+
+### One product (full document incl. variants + attributes)
+GET {{host}}/api/products/BC-TENT-001
+
+### Barcode scan
+GET {{host}}/api/products/barcode/5060000000011
+
+### Batch lookup (used by Orders)
+GET {{host}}/api/products/lookup?skus=BC-JKT-001,BC-HAT-001
+
+### Change price -> publishes ProductPriceChanged -> ETL writes ePOS price file
+PUT {{host}}/api/products/BC-HAT-001/price
+Content-Type: application/json
+
+{ "price": 7.99 }

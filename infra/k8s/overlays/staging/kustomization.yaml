@@ -1,0 +1,6 @@
+# Staging: production-shaped (base replicas/HPA) but still in-cluster dependencies.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+  - ../../infra-local

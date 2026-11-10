@@ -1,0 +1,40 @@
+<Project>
+  <!--
+    Central Package Management (CPM).
+    Projects reference packages WITHOUT a version; the version is pinned here once.
+    If `dotnet restore` reports a version as unavailable, bump it here only.
+
+    NOTE on MassTransit: v8.x is Apache-2.0 open source. v9+ moved to a commercial
+    licence. We deliberately pin 8.x (see docs/04-messaging-rabbitmq-masstransit.md).
+  -->
+  <PropertyGroup>
+    <MassTransitVersion>8.5.2</MassTransitVersion>
+    <EfCoreVersion>10.0.0</EfCoreVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Messaging -->
+    <PackageVersion Include="MassTransit" Version="$(MassTransitVersion)" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="$(MassTransitVersion)" />
+    <PackageVersion Include="MassTransit.Azure.ServiceBus.Core" Version="$(MassTransitVersion)" />
+    <PackageVersion Include="MassTransit.EntityFrameworkCore" Version="$(MassTransitVersion)" />
+
+    <!-- Data -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="MongoDB.Driver" Version="3.4.0" />
+
+    <!-- Web -->
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.0.0" />
+
+    <!-- Testing -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.0" />
+    <PackageVersion Include="NSubstitute" Version="5.3.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+  </ItemGroup>
+</Project>

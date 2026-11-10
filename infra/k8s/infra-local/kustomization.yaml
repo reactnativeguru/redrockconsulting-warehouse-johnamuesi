@@ -1,0 +1,8 @@
+# In-cluster RabbitMQ / Mongo / SQL Server for dev clusters ONLY.
+# Production uses managed services (Azure Service Bus / Cosmos DB / Azure SQL)
+# or operators (RabbitMQ Cluster Operator) with persistent storage + backups.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: basecamp
+resources:
+  - dependencies.yaml

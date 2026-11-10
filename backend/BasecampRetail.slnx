@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/Basecamp.Contracts/Basecamp.Contracts.csproj" />
+    <Project Path="src/BuildingBlocks/Basecamp.Messaging/Basecamp.Messaging.csproj" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="src/Services/Catalog/Catalog.Api/Catalog.Api.csproj" />
+    <Project Path="src/Services/Inventory/Inventory.Domain/Inventory.Domain.csproj" />
+    <Project Path="src/Services/Inventory/Inventory.Api/Inventory.Api.csproj" />
+    <Project Path="src/Services/Orders/Orders.Api/Orders.Api.csproj" />
+    <Project Path="src/Services/Etl/Epos.Etl/Epos.Etl.csproj" />
+    <Project Path="src/Gateway/Gateway/Gateway.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/Inventory.Domain.Tests/Inventory.Domain.Tests.csproj" />
+    <Project Path="tests/Inventory.Api.Tests/Inventory.Api.Tests.csproj" />
+    <Project Path="tests/Epos.Etl.Tests/Epos.Etl.Tests.csproj" />
+  </Folder>
+</Solution>

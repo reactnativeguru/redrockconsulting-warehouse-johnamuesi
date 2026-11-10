@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Message contracts shared between services.
+    Rule: this project has NO dependencies and contains ONLY immutable records.
+    It is the "public API" of our events - change it like you'd change a REST API (additively).
+  -->
+</Project>

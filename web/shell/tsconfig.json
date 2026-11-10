@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": { "composite": true, "noEmit": false, "emitDeclarationOnly": true, "outDir": "../.tsbuild/shell" },
+  "include": ["src"],
+  "references": [{ "path": "../shared" }]
+}

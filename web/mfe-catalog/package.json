@@ -1,0 +1,21 @@
+{
+  "name": "mfe-catalog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Catalog micro-frontend: product search and price management. Owned by the Catalog team.",
+  "scripts": {
+    "start": "webpack serve",
+    "build": "webpack --mode production",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@basecamp/mfe-contracts": "1.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transform": { "\\.[jt]sx?$": ["babel-jest", { "rootMode": "upward" }] },
+    "setupFilesAfterEnv": ["@testing-library/jest-dom"]
+  }
+}

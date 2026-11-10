@@ -1,0 +1,44 @@
+# Worker: no Service/probes over HTTP. ONE replica - two pollers on the same folder
+# would race for files. (Scale-out option: move inbound files to Blob Storage and
+# trigger per file, or use a leader-election lease.)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: epos-etl
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: epos-etl }
+  template:
+    metadata:
+      labels: { app: epos-etl }
+    spec:
+      containers:
+        - name: epos-etl
+          image: basecamp/epos-etl:latest
+          envFrom:
+            - configMapRef: { name: basecamp-config }
+            - secretRef: { name: basecamp-secrets }
+          env:
+            - { name: DOTNET_ENVIRONMENT, value: Production }
+            - { name: Etl__InboundFolder, value: /data/inbound }
+            - { name: Etl__ProcessedFolder, value: /data/processed }
+            - { name: Etl__ErrorFolder, value: /data/error }
+            - { name: Etl__OutboundFolder, value: /data/outbound }
+          volumeMounts: [{ name: epos-share, mountPath: /data }]
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits:   { memory: 256Mi }
+      volumes:
+        # Shared with the ePOS file transfer (e.g. Azure Files via a PVC).
+        - name: epos-share
+          persistentVolumeClaim: { claimName: epos-share }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: epos-share
+spec:
+  accessModes: [ReadWriteMany]
+  resources: { requests: { storage: 5Gi } }

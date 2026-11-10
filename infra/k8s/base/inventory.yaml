@@ -1,0 +1,63 @@
+# A fully-annotated example. The other services follow the same shape.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory
+spec:
+  replicas: 2                       # >1 so a pod restart/rolling update causes no downtime
+  selector:
+    matchLabels: { app: inventory }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  template:
+    metadata:
+      labels: { app: inventory }
+    spec:
+      containers:
+        - name: inventory
+          image: basecamp/inventory:latest   # overlays/CI replace the tag
+          ports: [{ containerPort: 8080 }]
+          envFrom:
+            - configMapRef: { name: basecamp-config }
+            - secretRef: { name: basecamp-secrets }
+          env:
+            # Let a one-off migration job own schema changes in real environments.
+            - { name: Database__InitialiseOnStartup, value: "true" }
+          resources:
+            requests: { cpu: 100m, memory: 192Mi }
+            limits:   { memory: 512Mi }
+          # readiness: "send me traffic" (checks the DB too). liveness: "restart me if hung".
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory
+spec:
+  selector: { app: inventory }
+  ports: [{ port: 80, targetPort: 8080 }]
+---
+# Scale on CPU. Consumers competing on the same RabbitMQ queue scale out naturally
+# (competing consumers pattern). For queue-depth-based scaling, use KEDA.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: inventory
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: inventory }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }

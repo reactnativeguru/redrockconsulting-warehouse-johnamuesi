@@ -1,0 +1,8 @@
+{
+  "name": "@basecamp/mfe-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The contract between the shell and its micro-frontends: props + event names. Keep it tiny.",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Pure domain model: business rules only. No EF, no MassTransit, no ASP.NET.
+    This keeps the rules fast to unit test and independent of infrastructure
+    (a light-touch "clean architecture" / DDD aggregate).
+  -->
+</Project>

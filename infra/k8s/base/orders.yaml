@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: orders }
+  template:
+    metadata:
+      labels: { app: orders }
+    spec:
+      containers:
+        - name: orders
+          image: basecamp/orders:latest
+          ports: [{ containerPort: 8080 }]
+          envFrom:
+            - configMapRef: { name: basecamp-config }
+            - secretRef: { name: basecamp-secrets }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits:   { memory: 384Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 30
+          securityContext: { runAsNonRoot: true, allowPrivilegeEscalation: false }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders
+spec:
+  selector: { app: orders }
+  ports: [{ port: 80, targetPort: 8080 }]

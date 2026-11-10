@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <ItemGroup>
+    <ProjectReference Include="../../../BuildingBlocks/Basecamp.Contracts/Basecamp.Contracts.csproj" />
+    <ProjectReference Include="../../../BuildingBlocks/Basecamp.Messaging/Basecamp.Messaging.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Epos.Etl.Tests" />
+  </ItemGroup>
+</Project>

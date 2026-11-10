@@ -1,0 +1,41 @@
+{
+  "name": "basecamp-admin-portal",
+  "private": true,
+  "description": "Store admin portal built as micro-frontends (Webpack Module Federation).",
+  "workspaces": [
+    "shared",
+    "mfe-catalog",
+    "mfe-inventory",
+    "shell"
+  ],
+  "scripts": {
+    "start": "concurrently -n catalog,inventory,shell -c blue,magenta,green \"npm:start -w mfe-catalog\" \"npm:start -w mfe-inventory\" \"npm:start -w shell\"",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "tsc -b"
+  },
+  "devDependencies": {
+    "@babel/core": "^8.1.0",
+    "@babel/preset-env": "^8.0.7",
+    "@babel/preset-react": "^8.0.1",
+    "@babel/preset-typescript": "^8.0.7",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "babel-jest": "^30.5.2",
+    "babel-loader": "^10.1.1",
+    "concurrently": "^10.0.7",
+    "html-webpack-plugin": "^5.6.8",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
+    "typescript": "^7.0.2",
+    "webpack": "^5.112.2",
+    "webpack-cli": "^7.3.1",
+    "webpack-dev-server": "^6.1.0"
+  }
+}
